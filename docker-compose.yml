@@ -1,10 +1,15 @@
 version: "3.9"
 services:
   ansible:
-    image: willhallonline/ansible:2.12-alpine-3.15 # <-- you can update this via https://hub.docker.com/r/willhallonline/ansible
+    image: willhallonline/ansible:latest
+    command: sh
+    tty: true
+    volumes:
+      - ./playbooks:/ansible/playbooks
     networks:
       netsible:
-        ipv4_address: 172.16.0.2
+        ipv4_address: ${ANSIBLE_IP}
+
   rockylinux:
     build:
       context: Dockerfiles/
@@ -15,12 +20,60 @@ services:
       - ./ssh/ansible.pub:/home/Ansible/.ssh/authorized_keys
     networks:
       netsible:
-        ipv4_address: 172.16.0.10
+        ipv4_address: ${ROCKY_IP}
 
+  ubuntu20:
+    build:
+      context: Dockerfiles/
+      dockerfile: Ubuntu20.Dockerfile
+    ports:
+      - "2223:22"
+    volumes:
+      - ./ssh/ansible.pub:/home/Ansible/.ssh/authorized_keys
+    networks:
+      netsible:
+        ipv4_address: ${UBUNTU20_IP}
+  
+  ubuntu21:
+    build:
+      context: Dockerfiles/
+      dockerfile: Ubuntu21.Dockerfile
+    ports:
+      - "2224:22"
+    volumes:
+      - ./ssh/ansible.pub:/home/Ansible/.ssh/authorized_keys
+    networks:
+      netsible:
+        ipv4_address: ${UBUNTU21_IP}
+
+  ubuntu22:
+    build:
+      context: Dockerfiles/
+      dockerfile: Ubuntu22.Dockerfile
+    ports:
+      - "2225:22"
+    volumes:
+      - ./ssh/ansible.pub:/home/Ansible/.ssh/authorized_keys
+    networks:
+      netsible:
+        ipv4_address: ${UBUNTU22_IP}
+
+  debian:
+    build:
+      context: Dockerfiles/
+      dockerfile: Debian.Dockerfile
+    ports:
+      - "2226:22"
+    volumes:
+      - ./ssh/ansible.pub:/home/Ansible/.ssh/authorized_keys
+    networks:
+      netsible:
+        ipv4_address: ${UBUNTU22_IP}
+    
 networks:
   netsible:
     driver: bridge
     ipam:
      config:
-       - subnet: 172.16.0.0/16
-         gateway: 172.16.0.1
+       - subnet: ${SUBNET_RANGE}
+         gateway: ${GATEWAY_IP}
