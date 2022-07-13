@@ -1,11 +1,15 @@
 version: "3.9"
 services:
   ansible:
-    image: willhallonline/ansible:latest
+    build:
+      context: Dockerfiles/
+      dockerfile: Ansible.Dockerfile
     command: sh
     tty: true
     volumes:
       - ./playbooks:/ansible/playbooks
+      - ./inventory:/ansible/inventory
+      - ssh-volume:/home/root/.ssh/ansible/public_keys
     networks:
       netsible:
         ipv4_address: ${ANSIBLE_IP}
@@ -15,9 +19,11 @@ services:
       context: Dockerfiles/
       dockerfile: Rockylinux.Dockerfile
     ports:
-      - "2222:22"
+      - "2222"
     volumes:
-      - ./ssh/ansible.pub:/home/Ansible/.ssh/authorized_keys
+      - ssh-volume:/home/Ansible/.ssh/authorized_keys
+    depends_on:
+      - "ansible"
     networks:
       netsible:
         ipv4_address: ${ROCKY_IP}
@@ -27,9 +33,11 @@ services:
       context: Dockerfiles/
       dockerfile: Ubuntu20.Dockerfile
     ports:
-      - "2223:22"
+      - "2222"
     volumes:
-      - ./ssh/ansible.pub:/home/Ansible/.ssh/authorized_keys
+      - ssh-volume:/home/Ansible/.ssh/authorized_keys
+    depends_on:
+      - "ansible"
     networks:
       netsible:
         ipv4_address: ${UBUNTU20_IP}
@@ -39,9 +47,11 @@ services:
       context: Dockerfiles/
       dockerfile: Ubuntu21.Dockerfile
     ports:
-      - "2224:22"
+      - "2222"
     volumes:
-      - ./ssh/ansible.pub:/home/Ansible/.ssh/authorized_keys
+      - ssh-volume:/home/Ansible/.ssh/authorized_keys
+    depends_on:
+      - "ansible"
     networks:
       netsible:
         ipv4_address: ${UBUNTU21_IP}
@@ -51,9 +61,11 @@ services:
       context: Dockerfiles/
       dockerfile: Ubuntu22.Dockerfile
     ports:
-      - "2225:22"
+      - "2222"
     volumes:
-      - ./ssh/ansible.pub:/home/Ansible/.ssh/authorized_keys
+      - ssh-volume:/home/Ansible/.ssh/authorized_keys
+    depends_on:
+      - "ansible"
     networks:
       netsible:
         ipv4_address: ${UBUNTU22_IP}
@@ -63,13 +75,17 @@ services:
       context: Dockerfiles/
       dockerfile: Debian.Dockerfile
     ports:
-      - "2226:22"
+      - "2222"
     volumes:
-      - ./ssh/ansible.pub:/home/Ansible/.ssh/authorized_keys
+      - ssh-volume:/home/Ansible/.ssh/authorized_keys
+    depends_on:
+      - "ansible"
     networks:
       netsible:
-        ipv4_address: ${UBUNTU22_IP}
+        ipv4_address: ${DEBIAN_IP}
     
+volumes:
+  ssh-volume:
 networks:
   netsible:
     driver: bridge

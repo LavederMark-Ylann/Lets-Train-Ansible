@@ -1,23 +1,13 @@
-FROM rockylinux:8
+FROM ubuntu:21.04
 
-# Kudos to Hiroki Takeyama : https://github.com/takeyamajp/docker-rocky-sshd
-
-# Update Rocky to the latest version
-RUN dnf update -y && dnf upgrade --refresh -y
+# Update Ubuntu 20.04 to the latest version
+RUN apt-get update -y && apt-get upgrade -y
 
 # Create a user "Ansible" for the container
 RUN useradd -m -s /bin/bash Ansible
 
 # Install and setup sshd
-RUN dnf -y install openssh-server && \
-    sed -i 's/^\(UsePAM yes\)/# \1/' /etc/ssh/sshd_config; \
-    ssh-keygen -q -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -N '' && \
-    ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N '' && \
-    ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key  -N ''; \
-    dnf clean all;
-
-# Setup the SSH key for Ansible
-#COPY ssh/ansible.pub /home/Ansible/.ssh/authorized_keys
+RUN apt-get -y install openssh-server && sed -i 's/^\(UsePAM yes\)/# \1/' /etc/ssh/sshd_config && mkdir -p /run/sshd
 
 # Entrypoint
 RUN { \
@@ -30,7 +20,7 @@ RUN { \
 
 ENV TIMEZONE Europe/Paris
 
-ENV ROOT_PASSWORD rockylinux
+ENV ROOT_PASSWORD ubuntu20
 
 # Disable root login and password authentication
 RUN sed -i -E 's/#?PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config && sed -i -E 's/#?PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
